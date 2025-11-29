@@ -13,6 +13,7 @@ function Calculator() {
 
   const offer = OFFERS[selectedOfferId];
   const promoDiscount = 0.2; // -20%
+  const isKidsOffer = offer.id === "kids"; // zakładam, że pakiet Kids ma id "kids"
 
   // --- ADD-ONY ZALEŻNE OD LICZBY GOŚCI ---
 
@@ -26,7 +27,10 @@ function Calculator() {
       })()
     : 0;
 
-  const kegCost = addons.keg
+  // KEG jest wyłączony dla Kids Party 0%
+  const kegSelected = !isKidsOffer && addons.keg;
+
+  const kegCost = kegSelected
     ? (() => {
         const pricePerKeg = 550;
         const guestsPerKeg = 50;
@@ -48,10 +52,8 @@ function Calculator() {
 
   // --- CENA PAKIETU ---
 
-  // minimalna cena = offer.price (nie spada poniżej)
   const baseServicePrice = offer.price;
 
-  // rabat -20% na całość
   const totalBeforeDiscount = baseServicePrice + addonsPrice;
   const totalAfterDiscount = Math.round(
     totalBeforeDiscount * (1 - promoDiscount)
@@ -76,10 +78,18 @@ function Calculator() {
 
   const scale50 = guests / 50;
 
-  const vodkaRumGinBottles = Math.max(1, Math.ceil(5 * scale50)); // 5 but. 0.7L dla 50 os.
-  const liqueurBottles = Math.max(1, Math.ceil(2 * scale50));
-  const aperolBottles = Math.max(1, Math.ceil(2 * scale50));
-  const proseccoBottles = Math.max(1, Math.ceil(5 * scale50));
+  const vodkaRumGinBottles = isKidsOffer
+    ? 0
+    : Math.max(1, Math.ceil(5 * scale50)); // 5 but. 0.7L dla 50 os.
+  const liqueurBottles = isKidsOffer
+    ? 0
+    : Math.max(1, Math.ceil(2 * scale50));
+  const aperolBottles = isKidsOffer
+    ? 0
+    : Math.max(1, Math.ceil(2 * scale50));
+  const proseccoBottles = isKidsOffer
+    ? 0
+    : Math.max(1, Math.ceil(5 * scale50));
   const syrupsLiters = Math.max(1, Math.ceil(12 * scale50));
   const iceKg = Math.max(4, Math.ceil(8 * scale50));
 
@@ -209,26 +219,36 @@ function Calculator() {
                   </span>
                 </label>
 
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={addons.keg}
-                    onChange={(e) =>
-                      setAddons((prev) => ({
-                        ...prev,
-                        keg: e.target.checked,
-                      }))
-                    }
-                  />
-                  <span>
-                    KEG piwa 30L z podajnikiem{" "}
-                    {addons.keg && (
-                      <span className="text-amber-300">
-                        (+{kegCost.toLocaleString("pl-PL")} zł)
-                      </span>
-                    )}
-                  </span>
-                </label>
+                {/* KEG tylko dla pakietów innych niż Kids */}
+                {!isKidsOffer && (
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={addons.keg}
+                      onChange={(e) =>
+                        setAddons((prev) => ({
+                          ...prev,
+                          keg: e.target.checked,
+                        }))
+                      }
+                    />
+                    <span>
+                      KEG piwa 30L z podajnikiem{" "}
+                      {kegSelected && (
+                        <span className="text-amber-300">
+                          (+{kegCost.toLocaleString("pl-PL")} zł)
+                        </span>
+                      )}
+                    </span>
+                  </label>
+                )}
+
+                {isKidsOffer && (
+                  <p className="text-xs text-amber-300">
+                    W pakiecie Kids Party 0% nie serwujemy alkoholu – KEG nie
+                    jest dostępny.
+                  </p>
+                )}
 
                 <label className="flex items-center gap-2">
                   <input
@@ -242,7 +262,7 @@ function Calculator() {
                     }
                   />
                   <span>
-                    Dystrybutor lemoniady 2×8L{" "}
+                    Dystrybutor lemoniady 2×12L{" "}
                     {addons.lemonade && (
                       <span className="text-amber-300">
                         (+{lemonadeCost.toLocaleString("pl-PL")} zł)
@@ -318,44 +338,69 @@ function Calculator() {
 
             <div className="border-t border-white/10 pt-4 mt-4 text-sm text-white/80 space-y-2">
               <p className="font-semibold uppercase text-xs tracking-wider text-white/60">
-                Lista zakupów (alkohol + dodatki) – orientacyjnie
+                Lista zakupów (napoje + dodatki) – orientacyjnie
               </p>
-              <p>
-                • Wódka / rum / gin:{" "}
-                <span className="font-semibold">
-                  ok. {vodkaRumGinBottles}× 0,7 L
-                </span>
-              </p>
-              <p>
-                • Likier (brzoskwinia / inne):{" "}
-                <span className="font-semibold">
-                  ok. {liqueurBottles}× 0,7 L
-                </span>
-              </p>
-              <p>
-                • Aperol:{" "}
-                <span className="font-semibold">
-                  ok. {aperolBottles}× 0,7 L
-                </span>
-              </p>
-              <p>
-                • Prosecco:{" "}
-                <span className="font-semibold">
-                  ok. {proseccoBottles}× 0,75 L
-                </span>
-              </p>
-              <p>
-                • Soki / miksery / syropy:{" "}
-                <span className="font-semibold">
-                  ok. {syrupsLiters} L łącznie
-                </span>
-              </p>
-              <p>
-                • Lód kostkowany / kruszony:{" "}
-                <span className="font-semibold">
-                  ok. {iceKg} kg
-                </span>
-              </p>
+
+              {isKidsOffer ? (
+                <>
+                  <p className="text-amber-300">
+                    • Brak alkoholu – pakiet Kids Party 0% to wyłącznie napoje
+                    bezalkoholowe.
+                  </p>
+                  <p>
+                    • Soki / miksery / syropy:{" "}
+                    <span className="font-semibold">
+                      ok. {syrupsLiters} L łącznie
+                    </span>
+                  </p>
+                  <p>
+                    • Lód kostkowany / kruszony:{" "}
+                    <span className="font-semibold">
+                      ok. {iceKg} kg
+                    </span>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p>
+                    • Wódka / rum / gin:{" "}
+                    <span className="font-semibold">
+                      ok. {vodkaRumGinBottles}× 0,7 L
+                    </span>
+                  </p>
+                  <p>
+                    • Likier (brzoskwinia / inne):{" "}
+                    <span className="font-semibold">
+                      ok. {liqueurBottles}× 0,7 L
+                    </span>
+                  </p>
+                  <p>
+                    • Aperol:{" "}
+                    <span className="font-semibold">
+                      ok. {aperolBottles}× 0,7 L
+                    </span>
+                  </p>
+                  <p>
+                    • Prosecco:{" "}
+                    <span className="font-semibold">
+                      ok. {proseccoBottles}× 0,75 L
+                    </span>
+                  </p>
+                  <p>
+                    • Soki / miksery / syropy:{" "}
+                    <span className="font-semibold">
+                      ok. {syrupsLiters} L łącznie
+                    </span>
+                  </p>
+                  <p>
+                    • Lód kostkowany / kruszony:{" "}
+                    <span className="font-semibold">
+                      ok. {iceKg} kg
+                    </span>
+                  </p>
+                </>
+              )}
+
               <p className="text-[0.75rem] text-white/50 mt-2">
                 Po wysłaniu formularza kontaktowego możemy przesłać Ci tę listę
                 w formie PDF – gotową do wydruku lub wysłania do hurtowni.
