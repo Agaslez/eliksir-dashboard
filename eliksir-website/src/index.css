@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --font-playfair: 'Playfair Display', serif;
+  --font-montserrat: 'Montserrat', sans-serif;
+}
+
+:root {
+  --eliksir-gold: #D4AF37;
+  --eliksir-purple: #6B21A8;
+  --eliksir-dark: #0A0A0F;
+  --eliksir-gray: #1A1A2E;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-montserrat);
+  background-color: var(--eliksir-dark);
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-playfair);
+}
+
+.font-playfair {
+  font-family: var(--font-playfair);
+}
+
+.eliksir-gold {
+  color: var(--eliksir-gold);
+}
+
+.bg-eliksir-gold {
+  background-color: var(--eliksir-gold);
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, var(--eliksir-gold) 0%, #FFD700 50%, var(--eliksir-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-card {
+  background: rgba(26, 26, 46, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 16px;
+}
+
+.cocktail-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(212, 175, 55, 0.15);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
